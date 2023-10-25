@@ -5,3 +5,9 @@
 body{
     background-color: rgb(38,38,38);
 }
+.correct{
+    color:white;
+}
+.incorrect{
+    color:red;
+}

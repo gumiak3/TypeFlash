@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 
 interface wordProps{
     active : boolean
@@ -6,10 +6,14 @@ interface wordProps{
     content : string
     sendDataToParent : (data : number) => void;
 }
-export function Word({active,id,content, sendDataToParent} : wordProps){
-    const [position, setPosition] = useState(0);
-    const [states, setStates] = useState(initPositionState(content))
 
+function isAlphabet(keyName : string){
+    return keyName.match("[a-zA-Z]+")?.length && keyName.length === 1 ? true : false;
+}
+
+export function Word({active,id,content, sendDataToParent} : wordProps){
+    const position = useRef(0);
+    const [states, setStates] = useState(initPositionState(content))
     function initPositionState(word: string){
         return getLetters(word).map((letter, index) =>'');
     }
@@ -26,12 +30,18 @@ export function Word({active,id,content, sendDataToParent} : wordProps){
             return;
         }
         function handleKeyPress(e : any){
-            const letter = getLetters(content)[position];
-            if(e.key === 'Backspace' && position >=0 ){
-                setPosition((prevPosition) => prevPosition - 1);
-            }else if(active && position < content.length && e.key !== 'Backspace'){
-                handleSetStates(position, letter === e.key ? 'correct' : 'incorrect');
-                setPosition((prevPosition) => prevPosition + 1);
+            const letter = getLetters(content)[position.current];
+            if(!active)
+                return;
+            if(e.key === 'Backspace' && position.current >= 0){
+                handleSetStates(position.current - 1, '');
+                position.current = position.current === 0 ? position.current : position.current - 1;
+            }else if(e.key === ' ' && position.current < content.length){
+                handleSetStates(position.current, 'incorrect');
+                position.current++;
+            } else if(position.current < content.length && isAlphabet(e.key)){
+                handleSetStates(position.current, e.key === letter ? 'correct' : 'incorrect');
+                position.current++;
             }
         }
         window.addEventListener('keydown', handleKeyPress);
@@ -44,7 +54,7 @@ export function Word({active,id,content, sendDataToParent} : wordProps){
     if(active){
         return (
             <li key={id} className={`select-none active`}>{letters.map((letter, index) => (
-                <span className={index <= position ? states[index] : '' } key={index}>{letter}</span>
+                <span className={index <= position.current ? states[index] : '' } key={index}>{letter}</span>
             ))}</li>
         )
     }else{
