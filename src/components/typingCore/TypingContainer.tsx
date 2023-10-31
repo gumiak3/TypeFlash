@@ -7,12 +7,13 @@ import {Word} from './Word'
 export default function TypingContainer() {
     const [dictionary  , setDictionary ] = useState([""]);
     const [position, setPosition] = useState(0);
-    const [keyPressed, setKeyPressed] = useState('');
+    const wordCorrectness : React.MutableRefObject<any[]> = useRef([]);
     useEffect(() => {
         getData().then((data) => {
             const filteredData : string[] = DictionaryController.getInstance().filter(data);
             const randomWords : string[] = DictionaryController.getInstance().generateRandomWords(filteredData , 100);
             setDictionary(randomWords);
+            wordCorrectness.current = randomWords.map(word => '');
         }).catch((err) => {
             console.error(err);
         })
@@ -20,6 +21,10 @@ export default function TypingContainer() {
 
     function handleDataFromChild(data : number){
         setPosition(data);
+    }
+    function handleCorrectness(data : boolean){
+        wordCorrectness.current[position] = data;
+        console.log(wordCorrectness.current);
     }
     return (
         <section>
@@ -30,7 +35,10 @@ export default function TypingContainer() {
                         key={index}
                         id={index}
                         content={word}
+                        activePosition={position}
+                        previousCorrectness={position > 0 ? wordCorrectness.current[position - 1] : false}
                         sendDataToParent={handleDataFromChild}
+                        sendCorrectnessToParent={handleCorrectness}
                     />
                 ))}
             </ul>
