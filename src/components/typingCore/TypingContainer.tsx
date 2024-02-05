@@ -10,6 +10,7 @@ export default function TypingContainer() {
     const [position, setPosition] = useState(0);
     const wordCorrectness : React.MutableRefObject<any[]> = useRef([]);
     const [cursorPosition, setCursorPosition] = useState({top:0, left:0});
+    const [letterPosition, setLetterPosition] = useState(0);
     useEffect(() => {
         getData().then((data) => {
             const filteredData : string[] = DictionaryController.getInstance().filter(data);
@@ -21,8 +22,9 @@ export default function TypingContainer() {
         })
     }, []);
 
-    function handleDataFromChild(data : number){
-        setPosition(data);
+    function handleDataFromChild(wordId : number, isNext: boolean){
+        setPosition(wordId);
+        setLetterPosition(isNext ? 0 : dictionary[wordId].length);
     }
     function handleCorrectness(data : boolean){
         wordCorrectness.current[position] = data;
@@ -51,6 +53,7 @@ export default function TypingContainer() {
                         sendDataToParent={handleDataFromChild}
                         sendCorrectnessToParent={handleCorrectness}
                         sendCursorPropsToParent={handleCursorProps}
+                        currentPosition={letterPosition}
                     />
                 ))}
             </ul>

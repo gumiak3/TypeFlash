@@ -7,9 +7,10 @@ interface wordProps{
     content : string
     activePosition : number
     previousCorrectness : boolean
-    sendDataToParent : (data : number) => void
+    sendDataToParent : (wordId : number, isNext: boolean) => void
     sendCorrectnessToParent : (data : boolean) => void
     sendCursorPropsToParent: (data: {top: number, left : number}) => void
+    currentPosition:number
 }
 
 function isAlphabet(keyName : string){
@@ -23,8 +24,8 @@ interface letterProps{
 
 }
 
-export function Word({active,id,content, activePosition, previousCorrectness, sendDataToParent, sendCorrectnessToParent, sendCursorPropsToParent} : wordProps){
-    const position = useRef(0);
+export function Word({active,id,content, activePosition, previousCorrectness, sendDataToParent, sendCorrectnessToParent, sendCursorPropsToParent, currentPosition} : wordProps){
+    const position = useRef(currentPosition);
     const [states, setStates] = useState(initPositionState(content));;
     const cursorProps = useRef({top:0,left:0,right:0});
     function initPositionState(word: string){
@@ -64,7 +65,7 @@ export function Word({active,id,content, activePosition, previousCorrectness, se
         if(!space)
             return;
         sendCorrectnessToParent(validCorrectness());
-        sendDataToParent(id + 1);
+        sendDataToParent(id + 1, true);
     }
     function handlePropsFromCurrentLetter(props : letterProps){
         cursorProps.current = {top:props.top, left:props.left, right:props.right};
@@ -75,6 +76,7 @@ export function Word({active,id,content, activePosition, previousCorrectness, se
             sendCursorPropsToParent({top:cursorProps.current.top, left:cursorProps.current.right});
     }
 
+
     function handleBackToPreviousWord(backspace : boolean){
         if(!backspace)
             return;
@@ -83,7 +85,7 @@ export function Word({active,id,content, activePosition, previousCorrectness, se
         if(position.current !== 0)
             return;
         if(!previousCorrectness){
-            sendDataToParent(id - 1);
+            sendDataToParent(id - 1, false);
         }
     }
 
