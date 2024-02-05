@@ -8,6 +8,25 @@ body{
 .correct{
     color:white;
 }
+.letter-cursor-typing{
+    transition: left 0.1s ease; /* Adjust the duration and easing as needed */
+
+}
+.letter-cursor-not-typing{
+    animation: cursor 2s infinite;
+}
+@keyframes cursor{
+    0%,100%{
+        background: white;
+    }
+    50% {
+        background: transparent;
+    }
+}
+body{
+    overflow-y:hidden;
+}
 .incorrect{
     color:red;
 }
+
