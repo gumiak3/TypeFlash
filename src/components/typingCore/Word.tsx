@@ -21,13 +21,15 @@ interface letterProps{
     left : number,
     right: number,
     top: number,
-
+    id:number,
+    letter: string
 }
 
 export function Word({active,id,content, activePosition, previousCorrectness, sendDataToParent, sendCorrectnessToParent, sendCursorPropsToParent, currentPosition} : wordProps){
     const position = useRef(currentPosition);
     const [states, setStates] = useState(initPositionState(content));;
     const cursorProps = useRef({top:0,left:0,right:0});
+    const [letterProps, setLetterProps] = useState<letterProps[]>([]);
     function initPositionState(word: string){
         return getLetters(word).map((index) =>'');
     }
@@ -67,16 +69,27 @@ export function Word({active,id,content, activePosition, previousCorrectness, se
         sendCorrectnessToParent(validCorrectness());
         sendDataToParent(id + 1, true);
     }
-    function handlePropsFromCurrentLetter(props : letterProps){
-        cursorProps.current = {top:props.top, left:props.left, right:props.right};
-        sendCursorPropsToParent({top: props.top, left: props.left});
+    function handlePropsFromCurrentLetter(newProps : letterProps){
+        cursorProps.current = {top:newProps.top, left:newProps.left, right:newProps.right};
+        sendCursorPropsToParent({top: newProps.top, left: newProps.left});
     }
     function sendCursorPropsToParentWhenLast(){
         if(position.current === content.length)
             sendCursorPropsToParent({top:cursorProps.current.top, left:cursorProps.current.right});
     }
 
+    function handlePropsFromLetter(newProps: letterProps){
 
+        const duplicates = letterProps.some((props) => props.id === newProps.id);
+        if(!duplicates){
+            setLetterProps((letterProps) => [...letterProps, newProps]);
+        }
+    }
+    function updateCursor(id:number){
+        // sendCursorPropsToParent({top:cursorProps.current.top, left:cursorProps.current.right});
+        cursorProps.current = {top:letterProps[id]?.top, left: letterProps[id]?.left, right: letterProps[id]?.right};
+        sendCursorPropsToParent({top: cursorProps.current.top, left: cursorProps.current.right});
+    }
     function handleBackToPreviousWord(backspace : boolean){
         if(!backspace)
             return;
@@ -93,7 +106,9 @@ export function Word({active,id,content, activePosition, previousCorrectness, se
         if(!active) {
             return;
         }
-
+        if(position.current === content.length){
+            updateCursor(position.current - 1);
+        }
         function handleKeyPress(e : any){
             const letter = getLetters(content)[position.current];
             if(!active){
@@ -125,7 +140,10 @@ export function Word({active,id,content, activePosition, previousCorrectness, se
                     sendDataToParent={handlePropsFromCurrentLetter}
                     content={letter}
                     key={index}
-                    className={setClassNameForActiveWord(index)+ " " + setClassNameForActiveLetter(index)}
+                    className={setClassNameForActiveWord(index)+ ` ` + setClassNameForActiveLetter(index)}
+                    id={index}
+                    sendPropsToParent={handlePropsFromLetter}
+                    activeWord={active}
                 />
             ))}</li>
         )
@@ -138,6 +156,9 @@ export function Word({active,id,content, activePosition, previousCorrectness, se
                     content={letter}
                     key={index}
                     className={""}
+                    id={index}
+                    sendPropsToParent={handlePropsFromLetter}
+                    activeWord={false}
                 />
             ))}</li>
         )

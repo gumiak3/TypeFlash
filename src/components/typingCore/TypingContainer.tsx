@@ -12,15 +12,20 @@ export default function TypingContainer() {
     const [cursorPosition, setCursorPosition] = useState({top:0, left:0});
     const [letterPosition, setLetterPosition] = useState(0);
     useEffect(() => {
-        getData().then((data) => {
+        fetchData();
+    }, []);
+    async function fetchData(){
+        try{
+            const data = await getData();
+            console.log(data);
             const filteredData : string[] = DictionaryController.getInstance().filter(data);
             const randomWords : string[] = DictionaryController.getInstance().generateRandomWords(filteredData , 100);
             setDictionary(randomWords);
             wordCorrectness.current = randomWords.map(word => '');
-        }).catch((err) => {
+        }catch(err){
             console.error(err);
-        })
-    }, []);
+        }
+    }
 
     function handleDataFromChild(wordId : number, isNext: boolean){
         setPosition(wordId);
