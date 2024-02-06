@@ -32,6 +32,23 @@ export function Letter({id, content, className, sendDataToParent, active,sendPro
             if(activeWord){
                 sendPropsToParent({id: id, left: left, right: right, top: top, letter :content});
             }
+
+        }
+        function handleResize(){
+            if(letterRef.current){
+                const left = Math.floor(letterRef.current.getBoundingClientRect().left);
+                const top = Math.floor(letterRef.current.getBoundingClientRect().top);
+                const right = Math.floor(letterRef.current.getBoundingClientRect().right);
+                if(active){
+                    sendDataToParent({id: id, left: left, right: right, top: top, letter :content});
+                }
+
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+        return () =>{
+            window.addEventListener('resize', handleResize);
         }
     }, [active, activeWord])
 

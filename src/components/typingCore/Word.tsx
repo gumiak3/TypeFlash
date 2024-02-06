@@ -86,7 +86,6 @@ export function Word({active,id,content, activePosition, previousCorrectness, se
         }
     }
     function updateCursor(id:number){
-        // sendCursorPropsToParent({top:cursorProps.current.top, left:cursorProps.current.right});
         cursorProps.current = {top:letterProps[id]?.top, left: letterProps[id]?.left, right: letterProps[id]?.right};
         sendCursorPropsToParent({top: cursorProps.current.top, left: cursorProps.current.right});
     }
@@ -125,12 +124,17 @@ export function Word({active,id,content, activePosition, previousCorrectness, se
             handleSkippingToNextWord(e.key === ' ');
             handleBackToPreviousWord(e.key === 'Backspace');
         }
+        function handleResize(){
+            console.log('halo kursor');
+            cursorProps.current = {top:letterProps[id]?.top, left: letterProps[id]?.left, right: letterProps[id]?.right};
+            sendCursorPropsToParent({top: cursorProps.current.top, left: cursorProps.current.left});
+        }
         window.addEventListener('keydown', handleKeyPress);
-
         return () => {
             window.removeEventListener('keydown', handleKeyPress);
+            window.removeEventListener('resize', handleResize);
         }
-    },[content, position, states, active])
+    },[content, position, states, active, letterProps])
     const letters = getLetters(content);
     if(active || id < activePosition){
         return (
