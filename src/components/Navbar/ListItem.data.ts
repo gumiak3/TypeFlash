@@ -1,13 +1,13 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import {faRankingStar, faUser} from '@fortawesome/free-solid-svg-icons';
 export const lists = [
     {
-        href:'./Leaderboard',
+        href:'../Leaderboard',
+        iconContent: faRankingStar,
         content: 'Leaderboard'
     },
     {
-        href:"./Login/",
-        iconContent:faUser
-
+        href:"../SignIn/",
+        iconContent:faUser,
+        content: 'Login'
     }
 ]
