@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {Letter} from "./Letter";
+import {WordElement} from "./TypingContainer";
 
 interface wordProps{
     active : boolean
@@ -11,6 +12,7 @@ interface wordProps{
     sendCorrectnessToParent : (data : boolean) => void
     sendCursorPropsToParent: (data: {top: number, left : number}) => void
     currentPosition:number
+    sendWordRef: (ref : WordElement) => void;
 }
 
 function isAlphabet(keyName : string){
@@ -25,11 +27,13 @@ interface letterProps{
     letter: string
 }
 
-export function Word({active,id,content, activePosition, previousCorrectness, sendDataToParent, sendCorrectnessToParent, sendCursorPropsToParent, currentPosition} : wordProps){
+export function Word({active,id,content, activePosition, previousCorrectness, sendDataToParent, sendCorrectnessToParent, sendCursorPropsToParent, currentPosition, sendWordRef} : wordProps){
     const position = useRef(currentPosition);
     const [states, setStates] = useState(initPositionState(content));;
     const cursorProps = useRef({top:0,left:0,right:0});
     const [letterProps, setLetterProps] = useState<letterProps[]>([]);
+    const wordRef = useRef<HTMLLIElement>(null);
+    const [init, setInit] = useState(true);
     function initPositionState(word: string){
         return getLetters(word).map((index) =>'');
     }
@@ -71,7 +75,11 @@ export function Word({active,id,content, activePosition, previousCorrectness, se
     }
     function handlePropsFromCurrentLetter(newProps : letterProps){
         cursorProps.current = {top:newProps.top, left:newProps.left, right:newProps.right};
-        sendCursorPropsToParent({top: newProps.top, left: newProps.left});
+        if(position.current === content.length){
+            sendCursorPropsToParent({top:cursorProps.current.top, left:cursorProps.current.right});
+        }else{
+            sendCursorPropsToParent({top: newProps.top, left: newProps.left});
+        }
     }
     function sendCursorPropsToParentWhenLast(){
         if(position.current === content.length)
@@ -100,9 +108,15 @@ export function Word({active,id,content, activePosition, previousCorrectness, se
             sendDataToParent(id - 1, false);
         }
     }
+    function sendSelfElementToParent(){
+       if(wordRef.current && init){
+           sendWordRef({id: id, element: wordRef.current});
+       }
+    }
 
     useEffect(()=>{
         if(!active) {
+            sendSelfElementToParent();
             return;
         }
         if(position.current === content.length){
@@ -124,21 +138,20 @@ export function Word({active,id,content, activePosition, previousCorrectness, se
             handleSkippingToNextWord(e.key === ' ');
             handleBackToPreviousWord(e.key === 'Backspace');
         }
-        function handleResize(){
-            console.log('halo kursor');
-            cursorProps.current = {top:letterProps[id]?.top, left: letterProps[id]?.left, right: letterProps[id]?.right};
-            sendCursorPropsToParent({top: cursorProps.current.top, left: cursorProps.current.left});
+        // sending element to TypingContainer to get access to their styles
+        sendSelfElementToParent();
+        if(init){
+            setInit(false);
         }
         window.addEventListener('keydown', handleKeyPress);
         return () => {
             window.removeEventListener('keydown', handleKeyPress);
-            window.removeEventListener('resize', handleResize);
         }
     },[content, position, states, active, letterProps])
     const letters = getLetters(content);
     if(active || id < activePosition){
         return (
-            <li key={id} className={`select-none tracking-wide active `}>{letters.map((letter, index) => (
+            <li ref={wordRef} key={id} className={`word select-none tracking-wide active `}>{letters.map((letter, index) => (
                 <Letter
                     active={index === position.current}
                     sendDataToParent={handlePropsFromCurrentLetter}
@@ -153,7 +166,7 @@ export function Word({active,id,content, activePosition, previousCorrectness, se
         )
     }else{
         return (
-            <li key={id} className={`select-none tracking-wide `}>{getLetters(content).map((letter, index) => (
+            <li ref={wordRef} key={id} className={`word select-none tracking-wide `}>{getLetters(content).map((letter, index) => (
                 <Letter
                     active={false}
                     sendDataToParent={handlePropsFromCurrentLetter}
