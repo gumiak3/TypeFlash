@@ -42,7 +42,6 @@ export function Letter({id, content, className, sendDataToParent, active,sendPro
                 if(active){
                     sendDataToParent({id: id, left: left, right: right, top: top, letter :content});
                 }
-
             }
         }
 

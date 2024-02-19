@@ -14,6 +14,21 @@ body{
     transition: left 0.1s ease; /* Adjust the duration and easing as needed */
 
 }
+.word{
+    opacity: 1;
+    transition: opacity 1s ease;
+}
+.typing-container li {
+    transition: opacity 0.3s ease-out;
+}
+
+.typing-container li.hide {
+    opacity: 0;
+}
+.to-remove{
+    opacity:1;
+    transition: opacity 1s ease;
+}
 .letter-cursor-not-typing{
     animation: cursor 2s infinite;
 }
@@ -42,3 +57,4 @@ body{
     transform:translateY(0);
     transition: all 1s;
 }
+
