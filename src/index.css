@@ -1,9 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+*{
+    box-sizing:border-box;
+}
 body{
-    background-color: rgb(38,38,38);
+    background-color: rgb(39 39 42);
 }
 .correct{
     color:white;
@@ -45,8 +47,14 @@ body{
     color:red;
 }
 
-/*.typing-container{*/
-/*    display:flex;*/
-/*    max-height:6em;*/
-/*    overflow:hidden;*/
-/*}*/
+.sneak-peek-hide{
+    opacity:0;
+    transform:translateY(-60%);
+    transition: all 1s;
+}
+.sneak-peek-show{
+    opacity: 1;
+    transform:translateY(0);
+    transition: all 1s;
+}
+
