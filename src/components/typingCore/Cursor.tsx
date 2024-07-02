@@ -9,7 +9,6 @@ interface cursorProps{
     top: number;
 }
 export function Cursor({top, left}: cursorProps){
-    const [position, setPosition] = useState(cursorStyle);
     const cursorRef = useRef<HTMLDivElement>(null);
     const [typing, setTyping] = useState('not-typing');
     useEffect(()=>{
@@ -41,6 +40,6 @@ export function Cursor({top, left}: cursorProps){
         }
     },[top,left, typing]);
     return (
-        <div ref={cursorRef} style={cursorStyle} className={`letter-cursor-${typing} bg-white w-px h-7 absolute`}></div>
+        <div ref={cursorRef} style={cursorStyle} className={`letter-cursor-${typing} bg-white w-px h-11 absolute`}></div>
     )
 }
