@@ -4,7 +4,12 @@ import { Cursor } from "./Cursor";
 import useDictionary from "../../hooks/useDictionary";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import { setState, setValue } from "../../store/wordsStates/wordsStatesSlice";
+import {
+    remove,
+    setState,
+    setValue,
+} from "../../store/wordsStates/wordsStatesSlice";
+import { setCurrentWord, setPosition } from "../../store/cursor/cursorSlice";
 
 const URL = "https://random-word-api.herokuapp.com/all";
 
@@ -13,35 +18,137 @@ export interface WordElement {
     element: HTMLLIElement;
 }
 
-interface cursorProps {
+function isAlphabet(keyName: string) {
+    return !!(keyName.match("[a-zA-Z]+")?.length && keyName.length === 1);
+}
+export type letterPropsType = {
     top: number;
     left: number;
-}
-
-type rootState = string[][];
+    right: number;
+};
 
 export default function TypingContainer() {
     const [dictionary] = useDictionary(URL);
-    const [position, setPosition] = useState(0);
-    const wordCorrectness: React.MutableRefObject<any[]> = useRef([]);
-    const [cursorPosition, setCursorPosition] = useState({ top: 0, left: 0 });
-    const [letterPosition, setLetterPosition] = useState(0);
-    const [wordElements, setWordElements] = useState<WordElement[]>([]);
-    const [wordElementsPosition, setWordElementsPosition] = useState<number[]>(
-        []
-    ); // style.top value
-    const lineTopValues = useRef<number[]>([]);
-    const linePosition = useRef<number>(0);
-    const removed = useRef<number>(0);
-
+    const letterProps = useRef<letterPropsType[][]>([]);
     //redux variables
-    const states = useSelector((state: RootState) => state.wordsStates);
+    // const states = useSelector((state: RootState) => state.wordsStates.value);
+    const cursor = useSelector((state: RootState) => state.cursor);
     const dispatch = useDispatch();
     useEffect(() => {
-        setLineTopValues();
         dispatch(setValue(initWordStates()));
-    }, [wordElements]);
+        initCursorPosition();
+    }, [dictionary]);
 
+    function initCursorPosition() {
+        if (!letterProps.current[0]) return;
+        updateCursorPosition(0, 0, {
+            top: letterProps.current[0][0].top,
+            left: letterProps.current[0][0].left,
+        });
+    }
+
+    function handleJumpToNextLetter() {
+        dispatch(
+            setCurrentWord({
+                wordId: cursor.currentWord.wordId + 1,
+                letterId: 0,
+            })
+        );
+        const newCursorPosition = {
+            top: letterProps.current[cursor.currentWord.wordId + 1][0].top,
+            left: letterProps.current[cursor.currentWord.wordId + 1][0].left,
+        };
+        dispatch(setPosition(newCursorPosition));
+    }
+    function setLetterProps(
+        wordId: number,
+        letterId: number,
+        props: letterPropsType
+    ) {
+        if (!letterProps.current[wordId]) {
+            letterProps.current[wordId] = new Array(dictionary[wordId].length);
+        }
+        letterProps.current[wordId][letterId] = props;
+    }
+    function updateCursorPosition(
+        wordId: number,
+        letterId: number,
+        newCursorPosition: { top: number; left: number }
+    ) {
+        dispatch(
+            setCurrentWord({
+                wordId: wordId,
+                letterId: letterId,
+            })
+        );
+        dispatch(setPosition(newCursorPosition));
+    }
+    useEffect(() => {
+        if (dictionary.length === 0 || !letterProps.current) return;
+
+        const { wordId } = cursor.currentWord;
+        const currentWord = dictionary[wordId];
+        const letters: string[] = getLetters(currentWord);
+        function handleKeyPress(e: any) {
+            const currentLetter = cursor.currentWord.letterId;
+            // to change!
+            if (
+                isAlphabet(e.key) &&
+                cursor.position.left ===
+                    letterProps.current[wordId][cursor.currentWord.letterId]
+                        .right
+            )
+                return;
+            if (
+                e.key === " " &&
+                cursor.position.left ===
+                    letterProps.current[wordId][cursor.currentWord.letterId]
+                        .right
+            ) {
+                handleJumpToNextLetter();
+                return;
+            }
+            if (isAlphabet(e.key) && currentLetter < currentWord.length) {
+                dispatch(
+                    setState({
+                        wordId: wordId,
+                        letterId: currentLetter,
+                        newState:
+                            letters[currentLetter] === e.key
+                                ? "correct"
+                                : "incorrect",
+                    })
+                );
+                // set cursor's position to next letter
+                if (currentLetter + 1 === currentWord.length) {
+                    // get right position of the letter instead of left position, because this letter is last
+                    const newCursorPosition = {
+                        top: letterProps.current[wordId][currentLetter].top,
+                        left: letterProps.current[wordId][currentLetter].right,
+                    };
+                    updateCursorPosition(
+                        wordId,
+                        currentLetter,
+                        newCursorPosition
+                    );
+                    return;
+                }
+                const newCursorPosition = {
+                    top: letterProps.current[wordId][currentLetter + 1].top,
+                    left: letterProps.current[wordId][currentLetter + 1].left,
+                };
+                updateCursorPosition(
+                    wordId,
+                    currentLetter + 1,
+                    newCursorPosition
+                );
+            }
+        }
+        window.addEventListener("keydown", handleKeyPress);
+        return () => {
+            window.removeEventListener("keydown", handleKeyPress);
+        };
+    }, [cursor, dictionary]);
     function getLetters(word: string): string[] {
         return word.split("");
     }
@@ -52,90 +159,19 @@ export default function TypingContainer() {
         });
         return states;
     }
-    function setLineTopValues() {
-        const topValues: number[] = [];
-        wordElements.forEach((elem) => {
-            const position = elem.element.getBoundingClientRect().top;
-            topValues.push(position);
-        });
-        const noDuplicates = new Set([...topValues]);
-        lineTopValues.current = Array.from(noDuplicates);
-        setWordElementsPosition(topValues);
-    }
-    function handleDataFromChild(wordId: number, isNext: boolean) {
-        setPosition(wordId);
-        setLetterPosition(isNext ? 0 : dictionary[wordId].length);
-    }
-    function handleCorrectness(data: boolean) {
-        wordCorrectness.current[position] = data;
-    }
-    function handleCursorProps(data: cursorProps) {
-        nextLineDectection(data);
-        setCursorPosition({ top: data.top, left: data.left });
-    }
-    function nextLineBehaviour() {
-        // current line === 2 then remove first line of words
-        if (linePosition.current === 3) {
-            wordElementsPosition.forEach((wordTopValue, index) => {
-                if (
-                    wordTopValue <
-                    lineTopValues.current[linePosition.current - 2]
-                ) {
-                    // console.log(`word: ${dictionary[index]}, top value: ${wordTopValue}`);
-                    removed.current++;
-                }
-            });
-            // after removing all words from first line we need to set cursor position to the start of 2 row
-            // wordCorrectness needs to be restarted so that second row will be fresh
-            setPosition(position - removed.current);
 
-            console.log(`letter position: ${letterPosition}`);
-            console.log(`cursor position: ${cursorPosition}`);
-            console.log(`position: ${position}`);
-        }
-    }
-    function nextLineDectection(nextPosition: cursorProps) {
-        // detects nextLine when cursorPosition has increased
-        if (nextPosition.top === undefined || cursorPosition.top === undefined)
-            return;
-        if (nextPosition.top > cursorPosition.top) {
-            linePosition.current++;
-            nextLineBehaviour();
-        }
-    }
-
-    function handleWordRef(element: WordElement) {
-        const duplicates = wordElements.some((e) => e.id === element.id);
-        if (!duplicates) {
-            setWordElements((prevElements) => [...prevElements, element]);
-        }
-    }
     return (
         <section>
-            <Cursor top={cursorPosition.top} left={cursorPosition.left} />
+            {dictionary.length > 0 && <Cursor />}
             <ul className="typing-container flex flex-wrap gap-4 text-gray-500 text-3xl box-border max-w-screen-lg m-auto ">
-                {dictionary.map(
-                    (word, index) =>
-                        removed.current <= index && (
-                            <Word
-                                active={position === index}
-                                key={index}
-                                id={index}
-                                content={word}
-                                activePosition={position}
-                                previousCorrectness={
-                                    position > 0
-                                        ? wordCorrectness.current[position - 1]
-                                        : false
-                                }
-                                sendDataToParent={handleDataFromChild}
-                                sendCorrectnessToParent={handleCorrectness}
-                                sendCursorPropsToParent={handleCursorProps}
-                                currentPosition={letterPosition}
-                                sendWordRef={handleWordRef}
-                            />
-                        )
-                )}
+                {dictionary.map((word, index) => (
+                    <Word
+                        key={index}
+                        wordId={index}
+                        content={word}
+                        sendLetterProps={setLetterProps}
+                    />
+                ))}
             </ul>
         </section>
     );

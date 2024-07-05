@@ -1,57 +1,90 @@
-import {useEffect, useRef, useState} from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
+import { RootState } from "../../store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentWord, setPosition } from "../../store/cursor/cursorSlice";
+import { letterPropsType } from "./TypingContainer";
 
-interface letterPropsToSend{
-    id : number,
-    left: number,
-    right: number,
-    top: number,
-    letter : string
+interface LetterProps {
+    wordId: number;
+    content: string;
+    letterId: number;
+    className: string;
+    sendLetterProps: (
+        wordId: number,
+        letterId: number,
+        props: letterPropsType
+    ) => void;
 }
-interface letterProps{
-    content : string,
-    key:number,
-    className: string,
-    sendDataToParent: (props: letterPropsToSend) => void,
-    active: boolean,
-    id:number,
-    sendPropsToParent: (props: letterPropsToSend) => void
-    activeWord:boolean,
-
-}
-export function Letter({id, content, className, sendDataToParent, active,sendPropsToParent, activeWord} : letterProps){
+export function Letter({
+    wordId,
+    content,
+    letterId,
+    className,
+    sendLetterProps,
+}: LetterProps) {
+    const cursor = useSelector((state: RootState) => state.cursor.currentWord);
+    const dispatch = useDispatch();
     const letterRef = useRef<HTMLSpanElement>(null);
-    useEffect(() =>{
-
-        if(letterRef.current){
-            const left = Math.floor(letterRef.current.getBoundingClientRect().left);
-            const top = Math.floor(letterRef.current.getBoundingClientRect().top);
-            const right = Math.floor(letterRef.current.getBoundingClientRect().right);
-            if(active){
-                sendDataToParent({id: id, left: left, right: right, top: top, letter :content});
-            }
-            if(activeWord){
-                sendPropsToParent({id: id, left: left, right: right, top: top, letter :content});
-            }
-
+    useEffect(() => {
+        if (letterRef.current) {
+            const left = Math.floor(
+                letterRef.current.getBoundingClientRect().left
+            );
+            const top = Math.floor(
+                letterRef.current.getBoundingClientRect().top
+            );
+            const right = Math.floor(
+                letterRef.current.getBoundingClientRect().right
+            );
+            sendLetterProps(wordId, letterId, {
+                top: top,
+                left: left,
+                right: right,
+            });
         }
-        function handleResize(){
-            if(letterRef.current){
-                const left = Math.floor(letterRef.current.getBoundingClientRect().left);
-                const top = Math.floor(letterRef.current.getBoundingClientRect().top);
-                const right = Math.floor(letterRef.current.getBoundingClientRect().right);
-                if(active){
-                    sendDataToParent({id: id, left: left, right: right, top: top, letter :content});
-                }
-            }
-        }
+    }, []);
+    // useEffect(() => {
+    //     if (letterRef.current) {
+    //         const left = Math.floor(
+    //             letterRef.current.getBoundingClientRect().left
+    //         );
+    // const top = Math.floor(
+    //     letterRef.current.getBoundingClientRect().top
+    // );
+    //         const right = Math.floor(
+    //             letterRef.current.getBoundingClientRect().right
+    //         );
+    //         if (wordId === cursor.wordId && letterId === cursor.letterId) {
+    //             if (cursor.getRightValue) {
+    //                 dispatch(setPosition({ top: top, left: right }));
+    //             } else {
+    //                 dispatch(setPosition({ top: top, left: left }));
+    //             }
+    //         }
+    //     }
+    // function handleResize() {
+    //     if (letterRef.current) {
+    //         const left = Math.floor(
+    //             letterRef.current.getBoundingClientRect().left
+    //         );
+    //         const top = Math.floor(
+    //             letterRef.current.getBoundingClientRect().top
+    //         );
+    //         const right = Math.floor(
+    //             letterRef.current.getBoundingClientRect().right
+    //         );
+    //     }
+    // }
 
-        window.addEventListener('resize', handleResize);
-        return () =>{
-            window.addEventListener('resize', handleResize);
-        }
-    }, [active, activeWord])
+    // window.addEventListener("resize", handleResize);
+    // return () => {
+    //     window.addEventListener("resize", handleResize);
+    // };
+    // }, []);
 
-    return(
-        <span ref={letterRef} className={className}>{content}</span>
-    )
+    return (
+        <span className={`letter ${className}`} ref={letterRef}>
+            {content}
+        </span>
+    );
 }
