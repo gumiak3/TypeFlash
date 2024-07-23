@@ -1,14 +1,8 @@
-import React, { forwardRef, useEffect, useRef, useState } from "react";
 import { Letter } from "./Letter";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import {
-    setState,
-    setStatesForWholeWord,
-} from "../../store/wordsStates/wordsStatesSlice";
-import { setCurrentWord, setPosition } from "../../store/cursor/cursorSlice";
+
 import { letterPropsType } from "./TypingContainer";
-import { send } from "process";
 
 interface WordProps {
     content: string;
@@ -32,7 +26,7 @@ export function Word({ content, wordId, sendLetterProps }: WordProps) {
                 <Letter
                     className={states.length > 0 ? states[wordId][index] : ""}
                     wordId={wordId}
-                    key={index}
+                    key={index + states.length}
                     content={letter}
                     letterId={index}
                     sendLetterProps={sendLetterProps}

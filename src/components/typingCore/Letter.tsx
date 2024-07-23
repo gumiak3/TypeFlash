@@ -42,6 +42,34 @@ export function Letter({
                 right: right,
             });
         }
+        let resizeTimeout: NodeJS.Timeout;
+        function handleResize() {
+            if (resizeTimeout) {
+                clearTimeout(resizeTimeout);
+            }
+            resizeTimeout = setTimeout(() => {
+                if (letterRef.current) {
+                    const left = Math.floor(
+                        letterRef.current.getBoundingClientRect().left
+                    );
+                    const top = Math.floor(
+                        letterRef.current.getBoundingClientRect().top
+                    );
+                    const right = Math.floor(
+                        letterRef.current.getBoundingClientRect().right
+                    );
+                    sendLetterProps(wordId, letterId, {
+                        top: top,
+                        left: left,
+                        right: right,
+                    });
+                }
+            }, 1000);
+        }
+        window.addEventListener("resize", handleResize);
+        return () => {
+            window.addEventListener("resize", handleResize);
+        };
     }, []);
     // useEffect(() => {
     //     if (letterRef.current) {
@@ -62,19 +90,6 @@ export function Letter({
     //             }
     //         }
     //     }
-    // function handleResize() {
-    //     if (letterRef.current) {
-    //         const left = Math.floor(
-    //             letterRef.current.getBoundingClientRect().left
-    //         );
-    //         const top = Math.floor(
-    //             letterRef.current.getBoundingClientRect().top
-    //         );
-    //         const right = Math.floor(
-    //             letterRef.current.getBoundingClientRect().right
-    //         );
-    //     }
-    // }
 
     // window.addEventListener("resize", handleResize);
     // return () => {

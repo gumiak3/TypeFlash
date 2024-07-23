@@ -2,11 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 
-const cursorStyle = {
-    left: 0,
-    top: 0,
-};
-
 export function Cursor() {
     const props = useSelector((state: RootState) => state.cursor);
     const cursorRef = useRef<HTMLDivElement>(null);
@@ -41,7 +36,6 @@ export function Cursor() {
     return (
         <div
             ref={cursorRef}
-            style={cursorStyle}
             className={`letter-cursor-${typing} bg-white w-px h-11 absolute`}
         ></div>
     );
