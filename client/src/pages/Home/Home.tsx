@@ -1,8 +1,8 @@
-import TypingDashboard from "../../components/typingCore/TypingDashboard";
+import TypingDashboard from '../../components/typingCore/TypingDashboard';
 export default function Home() {
-    return (
-        <div>
-            <TypingDashboard />
-        </div>
-    );
+  return (
+    <div>
+      <TypingDashboard />
+    </div>
+  );
 }
