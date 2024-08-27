@@ -1,4 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { WordsService } from './words.service';
 
 @Controller('words')
@@ -8,8 +17,8 @@ export class WordsController {
   async getAllWords(): Promise<string[]> {
     return this.wordsService.getAllWords();
   }
-  @Get('random')
-  async getRandomWords(size: number): Promise<string[]> {
+  @Get('random/:size')
+  async getRandomWords(@Param('size') size: number): Promise<string[]> {
     return this.wordsService.getRandomWords(size);
   }
 }

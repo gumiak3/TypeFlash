@@ -4,7 +4,7 @@ import * as path from 'path';
 export class WordsRepository {
   private fileName: string;
   constructor() {
-    this.fileName = path.join(__dirname, 'words.data');
+    this.fileName = path.join(__dirname, '../../data/words.data');
   }
 
   async getWords(): Promise<string[]> {
