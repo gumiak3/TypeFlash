@@ -19,10 +19,6 @@
         "@types/node": "^18.0.0",
         "@types/react": "^18.2.21",
         "@types/react-dom": "^18.2.7",
-<<<<<<< HEAD
-=======
-        "@vitejs/plugin-react": "^4.3.1",
->>>>>>> 03c71578ec42910dc318e90d345695135e3bcab0
         "node": "^20.16.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
