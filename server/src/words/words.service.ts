@@ -15,6 +15,6 @@ export class WordsService {
       const randomIndex = Math.floor(Math.random() * allWords.length);
       result.push(allWords[randomIndex]);
     }
-    return result;
+    return Promise.all(result);
   }
 }
