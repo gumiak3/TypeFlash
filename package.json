@@ -28,6 +28,8 @@
     },
     "scripts": {
         "start": "react-scripts start",
+        "client": "cd client && npm start",
+        "server:dev": "cd server && npm start:dev",
         "build": "react-scripts build",
         "test": "jest",
         "eject": "react-scripts eject"
