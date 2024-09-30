@@ -8,10 +8,9 @@
 .pnp.js
 /client/node_modules
 .idea
-
+.prettierrc
 # testing
 /coverage
-
 # production
 /build
 /server/dist
@@ -21,7 +20,8 @@
 .env.development.local
 .env.test.local
 .env.production.local
-
+/server/.env
+/client/.env
 .vscode
 
 npm-debug.log*

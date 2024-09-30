@@ -1,60 +1,59 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-*{
-    box-sizing:border-box;
+* {
+  box-sizing: border-box;
 }
-body{
-    background-color: rgb(39 39 42);
+body {
+  background-color: rgb(39 39 42);
 }
-.correct{
-    color:white;
+.correct {
+  color: white;
 }
-.letter-cursor-typing{
-    transition: left 0.1s ease; /* Adjust the duration and easing as needed */
-
+.letter-cursor-typing {
+  transition: left 0.1s ease; /* Adjust the duration and easing as needed */
 }
-.word{
-    opacity: 1;
-    transition: opacity 1s ease;
+.word {
+  opacity: 1;
+  transition: opacity 1s ease;
 }
 .typing-container li {
-    transition: opacity 0.3s ease-out;
+  transition: opacity 0.3s ease-out;
 }
 
 .typing-container li.hide {
-    opacity: 0;
+  opacity: 0;
 }
-.to-remove{
-    opacity:1;
-    transition: opacity 1s ease;
+.to-remove {
+  opacity: 1;
+  transition: opacity 1s ease;
 }
-.letter-cursor-not-typing{
-    animation: cursor 2s infinite;
+.letter-cursor-not-typing {
+  animation: cursor 2s infinite;
 }
-@keyframes cursor{
-    0%,100%{
-        background: white;
-    }
-    50% {
-        background: transparent;
-    }
+@keyframes cursor {
+  0%,
+  100% {
+    background: white;
+  }
+  50% {
+    background: transparent;
+  }
 }
-body{
-    overflow-y:hidden;
+body {
+  overflow-y: hidden;
 }
-.incorrect{
-    color:red;
-}
-
-.sneak-peek-hide{
-    opacity:0;
-    transform:translateY(-60%);
-    transition: all 1s;
-}
-.sneak-peek-show{
-    opacity: 1;
-    transform:translateY(0);
-    transition: all 1s;
+.incorrect {
+  color: red;
 }
 
+.sneak-peek-hide {
+  opacity: 0;
+  transform: translateY(-60%);
+  transition: all 1s;
+}
+.sneak-peek-show {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 1s;
+}
