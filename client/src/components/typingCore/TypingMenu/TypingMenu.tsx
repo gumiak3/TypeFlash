@@ -26,7 +26,8 @@ export default function TypingMenu({ selectedTimeOption, sendTimeOption, isRunni
               selectedTimeOption === elem ? 'text-white' : ''
             }`}
             onClick={handleSelectTimeOption}
-            value={elem}>
+            value={elem}
+          >
             {elem}
           </li>
         ))}

@@ -1,5 +1,5 @@
-describe("wordStatesSlice", () => {
-    const initState = [[""]];
+describe('wordStatesSlice', () => {
+  const initState = [['']];
 });
 
 export {};
